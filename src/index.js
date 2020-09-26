@@ -66,6 +66,7 @@ let updateComparison = function(orders, inventories, switchResult) {
 
   document.getElementById("output1").innerHTML = html1;
   document.getElementById("output2").innerHTML = html2;
+  document.getElementById("upload_file_1").style.visibility = "hidden";
 
 }
 
@@ -156,22 +157,34 @@ function handleFileSelect2(evt) {
 
       updateComparison(orders, inventories, false);
 
+      document.getElementById("output1").innerHTML =
+        "<p>在庫がアップロードされました。下の表に FX の在庫を表示しました。</p><p>次に楽天の注文のファイルをアップロードして下さい。</p>";
+
+      document.getElementById("upload_file_2").style.visibility = "hidden";
+      document.getElementById("upload_file_1").style.visibility = "visible";
+
+
     },
   });
 }
 
 document.getElementById("app").innerHTML = `
 	<form enctype="multipart/form-data">
-		<div>
-		<label for='upload2'>在庫のテキストファイル ili.txt を指定してください。</label>
+		<div id="upload_file_2">
+		<label for='upload2'>1. 在庫のテキストファイル ili.txt を指定してください。→</label>
 		<input id="upload2" type=file name="files2[]" accept='.txt'>
-		</div>
-		<div>
-		<label for='upload1'>楽天の注文の Excel ファイルをアップロードして下さい。</label>
+    </div>
+		<div id="upload_file_1">
+		<label for='upload1'>2. 楽天の注文の Excel ファイルをアップロードして下さい。→</label>
 		<input id="upload1" type=file name="files1[]" accept='.xlsm, .xlsx'>
 		</div>
 	</form>
 `;
+
+document.getElementById("upload_file_1").style.visibility = "hidden";
+
+document.getElementById("output1").innerHTML =
+  "<p>最初に在庫のファイル ili.txt をアップロードして下さい。</p>"
 
 document.getElementById("upload1").addEventListener("change", handleFileSelect1, false);
 document.getElementById("upload2").addEventListener("change", handleFileSelect2, false);
