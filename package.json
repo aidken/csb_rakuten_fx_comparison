@@ -1,0 +1,24 @@
+{
+  "name": "vanilla",
+  "version": "1.0.0",
+  "description": "Compare Rakuten orders with FX inventories.",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "xlsx": "^0.16.7",
+    "papaparse": "^5.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.2.0",
+    "parcel-bundler": "^1.6.1",
+    "xlsx": "^0.16.7",
+    "papaparse": "^5.3.0"
+  },
+  "keywords": [
+    "javascript",
+    "starter"
+  ]
+}
