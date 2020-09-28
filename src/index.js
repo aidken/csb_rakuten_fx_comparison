@@ -46,7 +46,7 @@ let updateComparison = function(orders, inventories, switchResult) {
 
   let count = 0;
   let html1 = "";
-  let html2 = "<p>注文数量と在庫数量との比較は次の通りです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
+  let html2 = "<table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
   for (const key in comparisons) {
     if ( comparisons[key].difference() < 0 ) {
       count += 1;
@@ -64,11 +64,50 @@ let updateComparison = function(orders, inventories, switchResult) {
   }
   html2 += "</table>";
 
-  document.getElementById("output1").innerHTML = html1;
-  document.getElementById("output2").innerHTML = html2;
-  document.getElementById("upload_file_1").style.visibility = "hidden";
+  document.getElementById("result").innerHTML = html1;
+  document.getElementById("tableEverything").innerHTML = html2;
 
 }
+
+function handleFileSelectInventories(evt) {
+
+  // initialize
+  inventories = {};
+
+  let Inventory = function (record) {
+    this.itemNumber  = record[0].toString();
+    this.warehouse   = record[1];
+    this.location    = record[2].toString();
+    this.qty         = record[3];
+    this.tenDigitLot = record[4].toString();
+  };
+
+  let file = evt.target.files[0];
+  papa.parse(file, {
+    header: false,
+    dynamicTyping: true,
+    complete: function (results) {
+      results.data.forEach(function (d) {
+        if (d.length === 5) {
+          let x = new Inventory(d);
+          if (x.warehouse === "FX") {
+            if (x.itemNumber in inventories) {
+              inventories[x.itemNumber] += x.qty;
+            } else {
+              inventories[x.itemNumber] = x.qty;
+            }
+          }
+        }
+      }); // end forEach
+
+      updateComparison(orders, inventories, false);
+
+      stageViews(1);
+
+    },
+  });
+} // end handleFileSelectInventories
+
 
 let ExcelToJSON = function() {
 
@@ -117,74 +156,56 @@ let ExcelToJSON = function() {
 
 }; // end function ExcelToJSON
 
-function handleFileSelect1(evt) {
+function handleFileSelectOrders(evt) {
   let files = evt.target.files; // FileList object
   let xl2json = new ExcelToJSON();
   xl2json.parseExcel(files[0]);
-}; // end function handleFile1
+  stageViews(2);
+}; // end function handleFileSelectOrders
 
 
-function handleFileSelect2(evt) {
+// document.getElementById("app").innerHTML = `
+// 	<form enctype="multipart/form-data">
+// 		<div id="uploadSectionInventories">
+// 		<label for='uploadInventories'>1. 在庫のテキストファイル ili.txt を指定してください。→</label>
+// 		<input id="uploadInventories" type=file name="files2[]" accept='.txt'>
+//     </div>
+// 		<div id="uploadSectionOrders">
+// 		<label for='uploadOrders'>2. 楽天の注文の Excel ファイルをアップロードして下さい。→</label>
+// 		<input id="uploadOrders" type=file name="files1[]" accept='.xlsm, .xlsx'>
+// 		</div>
+// 	</form>
+// `;
 
-  // initialize
-  inventories = {};
+// document.getElementById("upload_file_1").style.visibility = "hidden";
 
-  let Inventory = function (record) {
-    this.itemNumber = record[0].toString();
-    this.warehouse = record[1];
-    this.location = record[2].toString();
-    this.qty = record[3];
-    this.tenDigitLot = record[4].toString();
-  };
+let stageViews = function(stage) {
+  if (stage===0) {
+    document.getElementById("instructions").innerHTML =
+      "<p>最初に在庫のファイル ili.txt をアップロードして下さい。</p>"
+    document.getElementById("app").innerHTML = `
+    	<form enctype="multipart/form-data">
+        <input id="uploadInventories" type=file name="files2[]" accept='.txt'>
+      </form>
+      `;
+    document.getElementById("uploadInventories").addEventListener("change", handleFileSelectInventories, false);
+  } else if (stage===1) {
+    updateComparison(orders, inventories, false);
+    document.getElementById("instructions").innerHTML =
+      "<p>次に楽天の注文の Excel ファイルをアップロードして下さい。</p>"
+    document.getElementById("app").innerHTML = `
+    	<form enctype="multipart/form-data">
+    		<input id="uploadOrders" type=file name="files1[]" accept='.xlsm, .xlsx'>
+      </form>
+      `;
+    document.getElementById("uploadOrders").addEventListener("change", handleFileSelectOrders, false);
+  } else {
+    updateComparison(orders, inventories, true);
+    document.getElementById("instructions").innerHTML =
+      "<p>二つのファイルがアップロードされました。楽天の注文数量の比較は次の通りです。</p>"
+    document.getElementById("app").innerHTML = ""
+  }
+};
 
-  let file = evt.target.files[0];
-  papa.parse(file, {
-    header: false,
-    dynamicTyping: true,
-    complete: function (results) {
-      results.data.forEach(function (d) {
-        if (d.length === 5) {
-          let x = new Inventory(d);
-          if (x.warehouse === "FX") {
-            if (x.itemNumber in inventories) {
-              inventories[x.itemNumber] += x.qty;
-            } else {
-              inventories[x.itemNumber] = x.qty;
-            }
-          }
-        }
-      }); // end forEach
-
-      updateComparison(orders, inventories, false);
-
-      document.getElementById("output1").innerHTML =
-        "<p>在庫がアップロードされました。下の表に FX の在庫を表示しました。</p><p>次に楽天の注文のファイルをアップロードして下さい。</p>";
-
-      document.getElementById("upload_file_2").style.visibility = "hidden";
-      document.getElementById("upload_file_1").style.visibility = "visible";
-
-
-    },
-  });
-}
-
-document.getElementById("app").innerHTML = `
-	<form enctype="multipart/form-data">
-		<div id="upload_file_2">
-		<label for='upload2'>1. 在庫のテキストファイル ili.txt を指定してください。→</label>
-		<input id="upload2" type=file name="files2[]" accept='.txt'>
-    </div>
-		<div id="upload_file_1">
-		<label for='upload1'>2. 楽天の注文の Excel ファイルをアップロードして下さい。→</label>
-		<input id="upload1" type=file name="files1[]" accept='.xlsm, .xlsx'>
-		</div>
-	</form>
-`;
-
-document.getElementById("upload_file_1").style.visibility = "hidden";
-
-document.getElementById("output1").innerHTML =
-  "<p>最初に在庫のファイル ili.txt をアップロードして下さい。</p>"
-
-document.getElementById("upload1").addEventListener("change", handleFileSelect1, false);
-document.getElementById("upload2").addEventListener("change", handleFileSelect2, false);
+// start app
+stageViews(0);
