@@ -45,27 +45,33 @@ let updateComparison = function(orders, inventories, switchResult) {
   });
 
   let count = 0;
-  let html1 = "";
-  let html2 = "<table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
+  let htmlResult = "";
+  let htmlTableFusoku = "<p>楽天の注文の数量が FX の在庫では不足してしまっている品目はこちらです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
+  let htmlTableEverything = "<p>すべての品目の在庫数量と楽天の注文数量との対比はこちらです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
   for (const key in comparisons) {
     if ( comparisons[key].difference() < 0 ) {
       count += 1;
+      htmlTableFusoku += `<tr><td>${key}</td><td>${comparisons[key].inventory}</td><td>${comparisons[key].order}</td><td>${comparisons[key].difference()}</td></tr>`;
     }
-    html2 += `<tr><td align=right>${key}</td><td align=right>${comparisons[key].inventory}</td><td align=right>${comparisons[key].order}</td align=right><td align=right>${comparisons[key].difference()}</td></tr>`;
+    htmlTableEverything += `<tr><td>${key}</td><td>${comparisons[key].inventory}</td><td>${comparisons[key].order}</td><td>${comparisons[key].difference()}</td></tr>`;
   }
 
   if (switchResult) {
+    console.log('I\'m here!');
     if ( count > 0) {
-      html1 = `<p>FX の在庫が足りていな品目が ${count} 品目見つかりました。下の表に在庫数量と注文数量の比較が載っていますので、確認してください。</p>`;
+      htmlResult = `FX の在庫が足りていな品目が ${count} 品目見つかりました。`;
     } else {
-      html1 = "<p>FX の在庫はすべて足りています。</p>";
+      htmlResult = "FX の在庫はすべて足りています。";
     }
 
   }
-  html2 += "</table>";
+  htmlTableEverything += "</table>";
 
-  document.getElementById("result").innerHTML = html1;
-  document.getElementById("tableEverything").innerHTML = html2;
+  document.getElementById("result").innerHTML = htmlResult;
+  if (switchResult && count) {
+    document.getElementById("tableFusoku").innerHTML = htmlTableFusoku;
+  }
+  document.getElementById("tableEverything").innerHTML = htmlTableEverything;
 
 }
 
@@ -152,6 +158,7 @@ let ExcelToJSON = function() {
     };  // end reader.onerror
 
     reader.readAsBinaryString(file);
+
   }; // end parseExcel
 
 }; // end function ExcelToJSON
@@ -167,7 +174,7 @@ function handleFileSelectOrders(evt) {
 let stageViews = function(stage) {
   if (stage===0) {
     document.getElementById("instructions").innerHTML =
-      "<p>最初に在庫のファイル ili.txt をアップロードして下さい。</p>"
+      "最初に在庫のファイル ili.txt をアップロードして下さい。"
     document.getElementById("app").innerHTML = `
     	<form enctype="multipart/form-data">
         <input id="uploadInventories" type=file name="files2[]" accept='.txt'>
@@ -175,9 +182,8 @@ let stageViews = function(stage) {
       `;
     document.getElementById("uploadInventories").addEventListener("change", handleFileSelectInventories, false);
   } else if (stage===1) {
-    updateComparison(orders, inventories, false);
     document.getElementById("instructions").innerHTML =
-      "<p>次に楽天の注文の Excel ファイルをアップロードして下さい。</p>"
+      "次に楽天の注文の Excel ファイルをアップロードして下さい。"
     document.getElementById("app").innerHTML = `
     	<form enctype="multipart/form-data">
     		<input id="uploadOrders" type=file name="files1[]" accept='.xlsm, .xlsx'>
@@ -185,9 +191,8 @@ let stageViews = function(stage) {
       `;
     document.getElementById("uploadOrders").addEventListener("change", handleFileSelectOrders, false);
   } else {
-    updateComparison(orders, inventories, true);
     document.getElementById("instructions").innerHTML =
-      "<p>二つのファイルがアップロードされました。楽天の注文数量の比較は次の通りです。</p>"
+      "二つのファイルがアップロードされました。楽天の注文数量の比較します。"
     document.getElementById("app").innerHTML = ""
   }
 };
