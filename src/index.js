@@ -164,21 +164,6 @@ function handleFileSelectOrders(evt) {
 }; // end function handleFileSelectOrders
 
 
-// document.getElementById("app").innerHTML = `
-// 	<form enctype="multipart/form-data">
-// 		<div id="uploadSectionInventories">
-// 		<label for='uploadInventories'>1. 在庫のテキストファイル ili.txt を指定してください。→</label>
-// 		<input id="uploadInventories" type=file name="files2[]" accept='.txt'>
-//     </div>
-// 		<div id="uploadSectionOrders">
-// 		<label for='uploadOrders'>2. 楽天の注文の Excel ファイルをアップロードして下さい。→</label>
-// 		<input id="uploadOrders" type=file name="files1[]" accept='.xlsm, .xlsx'>
-// 		</div>
-// 	</form>
-// `;
-
-// document.getElementById("upload_file_1").style.visibility = "hidden";
-
 let stageViews = function(stage) {
   if (stage===0) {
     document.getElementById("instructions").innerHTML =
