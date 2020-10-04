@@ -46,7 +46,7 @@ let updateComparison = function(orders, inventories, switchResult) {
 
   let count = 0;
   let htmlResult = "";
-  let htmlTableFusoku = "<p>楽天の注文の数量が FX の在庫では不足してしまっている品目はこちらです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
+  let htmlTableFusoku = "<p>FX の在庫が不足してしまっている品目はこちらです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
   let htmlTableEverything = "<p>すべての品目の在庫数量と楽天の注文数量との対比はこちらです。</p><table><tr><th align=right>品目</th><th align=right>FX の在庫数量</th><th align=right>楽天での注文数量</th><th align=right>不足している数量</th></tr>";
   for (const key in comparisons) {
     if ( comparisons[key].difference() < 0 ) {
@@ -57,7 +57,7 @@ let updateComparison = function(orders, inventories, switchResult) {
   }
 
   if (switchResult) {
-    console.log('I\'m here!');
+    // console.log('I\'m here!');
     if ( count > 0) {
       htmlResult = `FX の在庫が足りていな品目が ${count} 品目見つかりました。`;
     } else {
